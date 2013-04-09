@@ -4,15 +4,20 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 object PercentDecoder {
-  def decode(string: String): String = {
+  def decode(string: String): Option[String] = {
+    object hex {
+      def unapply(c: Char): Option[Char] =
+        if (c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F') Some(c) else None
+    }
     @tailrec
-    def impl(buffer: ArrayBuffer[Byte], string: List[Char]): ArrayBuffer[Byte] =
+    def impl(buffer: ArrayBuffer[Byte], string: List[Char]): Option[ArrayBuffer[Byte]] =
       string match {
-        case Nil ⇒ buffer
-        case '%' :: h :: l :: rest ⇒
-          impl(buffer :+ Integer.parseInt(s"$h$l", 16).toByte, rest)
+        case Nil ⇒ Some(buffer)
+        case '%' :: hex(h) :: hex(l) :: rest ⇒
+          impl(buffer :+ Integer.parseInt(h.toString + l.toString, 16).toByte, rest)
+        case '%' :: _ ⇒ None
         case x :: rest ⇒ impl(buffer :+ x.toByte, rest)
       }
-    new String(impl(ArrayBuffer(), string.toList).toArray, "UTF-8")
+    impl(ArrayBuffer(), string.toList).map(buffer ⇒ new String(buffer.toArray, "UTF-8"))
   }
 }
