@@ -18,6 +18,8 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 libraryDependencies <+= scalaVersion(scalatestDependency(_))
 
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
+
 seq(ScctPlugin.instrumentSettings : _*)
 
 publishTo <<= version { (v: String) =>
