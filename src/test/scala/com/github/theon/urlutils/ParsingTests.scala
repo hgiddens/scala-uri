@@ -5,7 +5,6 @@ import org.scalatest.matchers.ShouldMatchers
 import com.github.theon.uri.Uri._
 
 class ParsingTests extends FlatSpec with ShouldMatchers {
-
   "Parsing an absolute URI" should "result in a valid Uri object" in {
     val uri = parseUri("http://theon.github.com/uris-in-scala.html")
     uri.protocol should equal (Some("http"))
@@ -34,5 +33,17 @@ class ParsingTests extends FlatSpec with ShouldMatchers {
     val uri = parseUri("//theon.github.com/uris-in-scala.html")
     uri.protocol should equal (None)
     uri.toString should equal ("//theon.github.com/uris-in-scala.html")
+  }
+
+  "Parsing URIs" should "be idempotent" in {
+    val source = com.github.theon.uri.Uri(
+      Some("http"),
+      Some("xn--ls8h.example.net"),
+      None,
+      List("", "path with spaces"),
+      com.github.theon.uri.Querystring(Map("a b" → List("c d")))
+    )
+    val parsed = parseUri(source.toString)
+    parsed should equal(source)
   }
 }
